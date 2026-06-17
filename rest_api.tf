@@ -22,7 +22,9 @@ resource "aws_api_gateway_method" "node_method" {
   rest_api_id   = aws_api_gateway_rest_api.satellite_api_rest.id
   resource_id   = aws_api_gateway_resource.node_resource.id
   http_method   = "GET"
-  authorization = "NONE"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.satellite_authorizer.id
+  authorization_scopes = [ "aws.cognito.signin.user.admin" ]
 }
 
 resource "aws_api_gateway_integration" "node_integration" {
@@ -78,7 +80,9 @@ resource "aws_api_gateway_method" "python_method" {
   rest_api_id   = aws_api_gateway_rest_api.satellite_api_rest.id
   resource_id   = aws_api_gateway_resource.python_resource.id
   http_method   = "GET"
-  authorization = "NONE"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.satellite_authorizer.id
+  authorization_scopes = [ "aws.cognito.signin.user.admin" ]
 }
 
 resource "aws_api_gateway_integration" "python_integration" {
@@ -111,4 +115,21 @@ resource "aws_lambda_permission" "node_lambda_permission" {
   # The /* part allows invocation from any stage, method and resource path
   # within API Gateway.
   source_arn = "arn:${data.aws_partition.current.partition}:execute-api:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:${aws_api_gateway_rest_api.satellite_api_rest.id}/*/*"
+}
+
+variable "cognito_user_pool_name" {}
+
+data "aws_cognito_user_pools" "satellite" {
+  name = var.cognito_user_pool_name
+}
+
+resource "aws_api_gateway_rest_api" "this" {
+  name = "with-authorizer"
+}
+
+resource "aws_api_gateway_authorizer" "satellite_authorizer" {
+  name          = "CognitoUserPoolAuthorizer"
+  type          = "COGNITO_USER_POOLS"
+  rest_api_id   = aws_api_gateway_rest_api.this.id
+  provider_arns = data.aws_cognito_user_pools.satellite.arns
 }
