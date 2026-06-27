@@ -2,16 +2,6 @@
 #https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cognito_resource_server 
 #https://docs.aws.amazon.com/cognito/latest/developerguide/federation-endpoints-oauth-grants.html 
 #Cognito resource server
-
-# RBAC Flow:
-# 1. User authenticates with Cognito.
-# 2. Cognito issues an access token with scopes like rbac-api/admin or rbac-api/user.
-# 3. API Gateway Cognito authorizer validates the token.
-# 4. API Gateway checks authorization_scopes.
-# 5. Only then does Lambda run.
-# 6. Lambda optionally checks cognito:groups for Layer 2 defense/application logic.
-
-
 resource "aws_cognito_resource_server" "satellite_resource" {
   identifier = "satellite_api_rest"
   name       = "RBAC REST API"
@@ -68,7 +58,7 @@ resource "aws_cognito_user_pool_client" "satellite_client" {
   name                                 = "satellite_client"
   user_pool_id                         = aws_cognito_user_pool.satellite_pool.id
   callback_urls                        = ["https://localhost/callback"]
-  logout_urls                          = ["localhost/logout"]
+  logout_urls                          = ["https://localhost/logout"]
   generate_secret                      = false
   allowed_oauth_flows_user_pool_client = true
   allowed_oauth_flows                  = ["code"]

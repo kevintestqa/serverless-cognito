@@ -4,7 +4,7 @@ import json
 
 def lambda_handler(event, context):
     dynamodb = boto3.resource("dynamodb")
-    table = dynamodb.Table("token-tracking")
+    table = dynamodb.Table("token-trackingv2")
 
     response = table.scan()
 
