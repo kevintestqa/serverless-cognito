@@ -73,3 +73,28 @@ resource "aws_lambda_function" "unused_token" {
     }
   }
 }
+
+resource "aws_lambda_function" "waf_bedrock_analyzer" {
+  filename      = data.archive_file.waf_bedrock_anaylzer.output_path
+  function_name = "waf_bedrock_analyzer"
+  role          = aws_iam_role.lambda_role.arn
+  handler       = "waf_bedrock_analyzer.lambda_handler"
+  code_sha256   = data.archive_file.waf_bedrock_anaylzer.output_base64sha256
+
+  runtime = "python3.14"
+
+  environment {
+    variables = {
+      ENVIRONMENT    = "production"
+      LOG_LEVEL      = "info"
+      WAF_LOG_GROUP  = aws_cloudwatch_log_group.waf_logs.name
+      DYNAMODB_TABLE = "waf-events"
+    }
+  }
+}
+
+data "archive_file" "waf_bedrock_anaylzer" {
+  type        = "zip"
+  source_file = "${path.module}/source/waf_bedrock_analyzer.py"
+  output_path = "${path.module}/lambda/waf_bedrock_analyzer.zip"
+}
