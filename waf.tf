@@ -12,7 +12,7 @@ resource "aws_wafv2_web_acl" "satellite_waf_v2" {
     priority = 1
 
     override_action {
-      count {}
+      none {}
     }
 
     statement {

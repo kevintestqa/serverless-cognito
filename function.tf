@@ -88,7 +88,8 @@ resource "aws_lambda_function" "waf_bedrock_analyzer" {
       ENVIRONMENT    = "production"
       LOG_LEVEL      = "info"
       WAF_LOG_GROUP  = aws_cloudwatch_log_group.waf_logs.name
-      DYNAMODB_TABLE = "waf-events"
+      DYNAMODB_TABLE = aws_dynamodb_table.dynamoDb_waf_events.name
+      BEDROCK_MODEL_ID = "us.anthropic.claude-sonnet-4-6"
     }
   }
 }
